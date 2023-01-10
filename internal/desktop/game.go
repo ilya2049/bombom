@@ -28,15 +28,7 @@ func (g *Game) Update() error {
 
 	events = append(events, readInputEvents()...)
 
-	ctx := context.Background()
-
-	for _, event := range events {
-		if err := g.eventDispatcher.Dispatch(ctx, event); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return g.eventDispatcher.Dispatch(context.Background(), events...)
 }
 
 func (g *Game) Draw(_ *ebiten.Image) {

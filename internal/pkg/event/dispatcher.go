@@ -18,17 +18,27 @@ func NewDispatcher() *Dispatcher {
 	}
 }
 
-func (r *Dispatcher) RegisterHandler(eventType string, h Handler) {
-	handlerGroup, ok := r.handlerGroups[eventType]
+func (d *Dispatcher) RegisterHandler(eventType string, h Handler) {
+	handlerGroup, ok := d.handlerGroups[eventType]
 	if !ok {
 		handlerGroup = make([]Handler, 0, 1)
 	}
 
-	r.handlerGroups[eventType] = append(handlerGroup, h)
+	d.handlerGroups[eventType] = append(handlerGroup, h)
 }
 
-func (r *Dispatcher) Dispatch(ctx context.Context, e Event) error {
-	handlerGroup, ok := r.handlerGroups[e.Type()]
+func (d *Dispatcher) Dispatch(ctx context.Context, events ...Event) error {
+	for _, event := range events {
+		if err := d.dispatch(ctx, event); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (d *Dispatcher) dispatch(ctx context.Context, e Event) error {
+	handlerGroup, ok := d.handlerGroups[e.Type()]
 	if !ok {
 		return fmt.Errorf("%w: %s", ErrNotRegistered, e.Type())
 	}
