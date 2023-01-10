@@ -1,43 +1,46 @@
 package desktop
 
 import (
-	"image"
-	"log"
-	"os"
-	"path"
+	"bombom/internal/game"
+	"bombom/internal/pkg/event"
+
+	"context"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 func NewGame() *Game {
-	bombermanImageFile, err := os.Open(path.Join("resources", "bomberman.png"))
-	if err != nil {
-		panic(err)
-	}
+	eventDispatcher := event.NewDispatcher()
 
-	defer bombermanImageFile.Close()
-
-	decodedBombermanImage, _, err := image.Decode(bombermanImageFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	bombermanImage := ebiten.NewImageFromImage(decodedBombermanImage)
+	game.RegisterKeyHandlers(eventDispatcher)
 
 	return &Game{
-		bombermanImage: bombermanImage,
+		eventDispatcher: eventDispatcher,
 	}
 }
 
 type Game struct {
-	bombermanImage *ebiten.Image
+	eventDispatcher *event.Dispatcher
 }
 
 func (g *Game) Update() error {
+	var events []event.Event
+
+	events = append(events, readInputEvents()...)
+
+	ctx := context.Background()
+
+	for _, event := range events {
+		if err := g.eventDispatcher.Dispatch(ctx, event); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
-func (g *Game) Draw(screen *ebiten.Image) {
-	screen.DrawImage(g.bombermanImage, &ebiten.DrawImageOptions{})
+func (g *Game) Draw(_ *ebiten.Image) {
+
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
