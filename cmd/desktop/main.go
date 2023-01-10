@@ -1,18 +1,17 @@
 package main
 
 import (
-	"github.com/gonutz/prototype/draw"
-
 	"bombom/internal/desktop"
+
+	"log"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 func main() {
-	if err := draw.RunWindow(
-		"Bom-bom!",
-		640,
-		640,
-		desktop.DrawGameIteration,
-	); err != nil {
-		panic(err)
+	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowTitle("Hello, World!")
+	if err := ebiten.RunGame(desktop.NewGame()); err != nil {
+		log.Fatal(err)
 	}
 }
