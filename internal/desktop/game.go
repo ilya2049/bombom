@@ -1,7 +1,7 @@
 package desktop
 
 import (
-	"bombom/internal/game"
+	"bombom/internal/game/input"
 	"bombom/internal/pkg/event"
 
 	"context"
@@ -12,7 +12,7 @@ import (
 func NewGame() *Game {
 	eventDispatcher := event.NewDispatcher()
 
-	game.RegisterKeyHandlers(eventDispatcher)
+	input.RegisterKeyHandlers(eventDispatcher)
 
 	return &Game{
 		eventDispatcher: eventDispatcher,

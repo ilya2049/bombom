@@ -1,18 +1,19 @@
 package desktop
 
 import (
-	"bombom/internal/game"
+	"bombom/internal/game/input"
 	"bombom/internal/pkg/event"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-var keyMap = map[ebiten.Key]game.Key{
-	ebiten.KeyLeft:  game.KeyLeft,
-	ebiten.KeyRight: game.KeyRight,
-	ebiten.KeyUp:    game.KeyUp,
-	ebiten.KeyDown:  game.KeyDown,
+var keyMap = map[ebiten.Key]input.Key{
+	ebiten.KeyLeft:  input.KeyLeft,
+	ebiten.KeyRight: input.KeyRight,
+	ebiten.KeyUp:    input.KeyUp,
+	ebiten.KeyDown:  input.KeyDown,
+	ebiten.KeySpace: input.KeySpace,
 }
 
 func readInputEvents() []event.Event {
@@ -20,10 +21,10 @@ func readInputEvents() []event.Event {
 
 	for ebitenKey, gameKey := range keyMap {
 		if inpututil.IsKeyJustPressed(ebitenKey) {
-			events = append(events, event.New(game.KeyPressed{Key: gameKey}))
+			events = append(events, event.New(input.KeyPressed{Key: gameKey}))
 		}
 		if inpututil.IsKeyJustReleased(ebitenKey) {
-			events = append(events, event.New(game.KeyReleased{Key: gameKey}))
+			events = append(events, event.New(input.KeyReleased{Key: gameKey}))
 		}
 	}
 
