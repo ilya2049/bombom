@@ -1,7 +1,7 @@
 package desktop
 
 import (
-	"bombom/internal/game/input"
+	"bombom/internal/input"
 	"bombom/internal/pkg/event"
 
 	"context"
