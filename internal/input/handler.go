@@ -11,10 +11,10 @@ type keyHandler interface {
 	handleKeyReleased(context.Context, KeyReleased) error
 }
 
-func RegisterKeyHandlers(eventDispatcher *event.Dispatcher) {
-	var aKeyHandler keyHandler
-
-	aKeyHandler = &keyPrinter{}
+func RegisterKeyHandlers(
+	aKeyHandler keyHandler,
+	eventDispatcher *event.Dispatcher,
+) {
 	aKeyHandler = newCrossKeyFilter(aKeyHandler)
 
 	eventDispatcher.RegisterHandler(

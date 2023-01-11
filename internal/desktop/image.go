@@ -10,18 +10,27 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+type corePlayer interface {
+	X() float64
+	Y() float64
+	Move()
+}
+
 type player struct {
+	corePlayer
+
 	image *ebiten.Image
 }
 
-func newPlayer() (*player, error) {
+func newPlayer(coords corePlayer) (*player, error) {
 	image, err := newImage(resources.PlayerImage)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create the player image: %w", err)
 	}
 
 	return &player{
-		image: image,
+		corePlayer: coords,
+		image:      image,
 	}, nil
 }
 
@@ -35,7 +44,8 @@ func newImage(imageBytes []byte) (*ebiten.Image, error) {
 }
 
 func (p *player) drawOnScreen(screen *ebiten.Image) {
-	op := &ebiten.DrawImageOptions{}
+	options := &ebiten.DrawImageOptions{}
+	options.GeoM.Translate(p.X(), p.Y())
 
-	screen.DrawImage(p.image, op)
+	screen.DrawImage(p.image, options)
 }

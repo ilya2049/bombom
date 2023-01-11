@@ -1,6 +1,7 @@
 package desktop
 
 import (
+	"bombom/internal/game"
 	"bombom/internal/input"
 	"bombom/internal/pkg/event"
 	"fmt"
@@ -11,17 +12,19 @@ import (
 )
 
 func NewGame() (*Game, error) {
-	aPlayer, err := newPlayer()
+	player := game.NewPlayer()
+
+	desktopPlayer, err := newPlayer(player)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create the player: %w", err)
 	}
 
 	eventDispatcher := event.NewDispatcher()
 
-	input.RegisterKeyHandlers(eventDispatcher)
+	input.RegisterKeyHandlers(input.NewPlayer(player), eventDispatcher)
 
 	return &Game{
-		player:          aPlayer,
+		desktopPlayer:   desktopPlayer,
 		eventDispatcher: eventDispatcher,
 	}, nil
 }
@@ -29,10 +32,12 @@ func NewGame() (*Game, error) {
 type Game struct {
 	eventDispatcher *event.Dispatcher
 
-	player *player
+	desktopPlayer *player
 }
 
 func (g *Game) Update() error {
+	g.desktopPlayer.Move()
+
 	var events []event.Event
 
 	events = append(events, readInputEvents()...)
@@ -41,7 +46,7 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	g.player.drawOnScreen(screen)
+	g.desktopPlayer.drawOnScreen(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
