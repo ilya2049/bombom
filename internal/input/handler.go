@@ -15,7 +15,7 @@ func RegisterKeyHandlers(
 	aKeyHandler keyHandler,
 	eventDispatcher *event.Dispatcher,
 ) {
-	aKeyHandler = newCrossKeyFilter(aKeyHandler)
+	aKeyHandler = newCrossKeyDriver(aKeyHandler)
 
 	eventDispatcher.RegisterHandler(
 		event.New(KeyPressed{}).Type(),
