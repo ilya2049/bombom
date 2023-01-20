@@ -61,6 +61,30 @@ func TestHandle_EventWithCustomType(t *testing.T) {
 	assert.Equal(t, "test_field detected", logString)
 }
 
+func TestHandle_EncodedEvent(t *testing.T) {
+	var logString string
+
+	handler := event.Handle[*TestEvent](func(_ context.Context, e *TestEvent) error {
+		logString = e.TestField + " detected"
+
+		return nil
+	})
+
+	err := handler.Handle(context.Background(), event.NewEncoded("", []byte(`{"test_field":"test_field_encoded"}`)))
+	require.NoError(t, err)
+
+	assert.Equal(t, "test_field_encoded detected", logString)
+}
+
+func TestHandle_EventEncodingError(t *testing.T) {
+	handler := event.Handle[*TestEvent](func(_ context.Context, _ *TestEvent) error {
+		return nil
+	})
+
+	err := handler.Handle(context.Background(), event.NewEncoded("", []byte(`{"`)))
+	assert.Error(t, err)
+}
+
 func TestHandle_EventClarificationError(t *testing.T) {
 	handler := event.Handle[TestEventWithCustomType](func(_ context.Context, e TestEventWithCustomType) error {
 		return nil

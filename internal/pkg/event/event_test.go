@@ -12,7 +12,7 @@ import (
 var ErrTest = errors.New("test event error")
 
 type TestEvent struct {
-	TestField string
+	TestField string `json:"test_field"`
 }
 
 type TestEventWithCustomType struct {
