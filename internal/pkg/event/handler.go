@@ -17,29 +17,40 @@ type Handler interface {
 type Handle[T any] func(context.Context, T) error
 
 func (h Handle[T]) Handle(ctx context.Context, e Event) error {
-	encodedEvent, ok := e.(encoded)
-	if ok {
-		var (
-			json           = jsoniter.ConfigFastest
-			clarifiedEvent T
-		)
+	switch typedEvent := e.(type) {
+	case jsonSerializedEvent:
+		return h.deserializeJSON(ctx, typedEvent)
+	case autoTypedEvent:
+		return h.deserializeBaseEvent(ctx, typedEvent)
+	default:
+		return h.deserialize(ctx, e)
+	}
+}
 
-		if err := json.Unmarshal(encodedEvent.data, &clarifiedEvent); err != nil {
-			return fmt.Errorf("failed to unmarshal encoded event: %w", err)
-		}
+func (h Handle[T]) deserializeJSON(ctx context.Context, e jsonSerializedEvent) error {
+	var (
+		json           = jsoniter.ConfigFastest
+		clarifiedEvent T
+	)
 
-		return h(ctx, clarifiedEvent)
+	if err := json.Unmarshal(e.data, &clarifiedEvent); err != nil {
+		return fmt.Errorf("failed to unmarshal encoded event: %w", err)
 	}
 
-	var rawEvent any
-	rawEvent = e
+	return h(ctx, clarifiedEvent)
+}
 
-	baseEvent, ok := e.(baseEvent)
-	if ok {
-		rawEvent = baseEvent.rawEvent
+func (h Handle[T]) deserializeBaseEvent(ctx context.Context, e autoTypedEvent) error {
+	clarifiedEvent, ok := e.rawEvent.(T)
+	if !ok {
+		return fmt.Errorf("%w: %s", ErrClarification, e.typeName)
 	}
 
-	clarifiedEvent, ok := rawEvent.(T)
+	return h(ctx, clarifiedEvent)
+}
+
+func (h Handle[T]) deserialize(ctx context.Context, e Event) error {
+	clarifiedEvent, ok := e.(T)
 	if !ok {
 		return fmt.Errorf("%w: %s", ErrClarification, e.Type())
 	}

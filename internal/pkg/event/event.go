@@ -6,34 +6,34 @@ type Event interface {
 	Type() string
 }
 
-type baseEvent struct {
+type autoTypedEvent struct {
 	typeName string
 	rawEvent any
 }
 
 func New(rawEvent any) Event {
-	return baseEvent{
+	return autoTypedEvent{
 		typeName: reflect.TypeOf(rawEvent).Name(),
 		rawEvent: rawEvent,
 	}
 }
 
-func (e baseEvent) Type() string {
+func (e autoTypedEvent) Type() string {
 	return e.typeName
 }
 
-type encoded struct {
+type jsonSerializedEvent struct {
 	typeName string
 	data     []byte
 }
 
-func NewEncoded(typeName string, data []byte) Event {
-	return encoded{
+func NewJSON(typeName string, data []byte) Event {
+	return jsonSerializedEvent{
 		typeName: typeName,
 		data:     data,
 	}
 }
 
-func (e encoded) Type() string {
+func (e jsonSerializedEvent) Type() string {
 	return e.typeName
 }

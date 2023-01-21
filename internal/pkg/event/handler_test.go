@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestHandle_BaseEvent(t *testing.T) {
+func TestHandle_AutoTypedEvent(t *testing.T) {
 	var logString string
 
 	handler := event.Handle[TestEvent](func(_ context.Context, e TestEvent) error {
@@ -27,7 +27,7 @@ func TestHandle_BaseEvent(t *testing.T) {
 	assert.Equal(t, "test_field detected", logString)
 }
 
-func TestHandle_BaseEventWithEventPointer(t *testing.T) {
+func TestHandle_AutoTypedEventWithEventPointer(t *testing.T) {
 	var logString string
 
 	handler := event.Handle[*TestEvent](func(_ context.Context, e *TestEvent) error {
@@ -61,7 +61,7 @@ func TestHandle_EventWithCustomType(t *testing.T) {
 	assert.Equal(t, "test_field detected", logString)
 }
 
-func TestHandle_EncodedEvent(t *testing.T) {
+func TestHandle_JSONSerializedEvent(t *testing.T) {
 	var logString string
 
 	handler := event.Handle[*TestEvent](func(_ context.Context, e *TestEvent) error {
@@ -70,18 +70,18 @@ func TestHandle_EncodedEvent(t *testing.T) {
 		return nil
 	})
 
-	err := handler.Handle(context.Background(), event.NewEncoded("", []byte(`{"test_field":"test_field_encoded"}`)))
+	err := handler.Handle(context.Background(), event.NewJSON("", []byte(`{"test_field":"test_field_encoded"}`)))
 	require.NoError(t, err)
 
 	assert.Equal(t, "test_field_encoded detected", logString)
 }
 
-func TestHandle_EventEncodingError(t *testing.T) {
+func TestHandle_EventDeserializationError(t *testing.T) {
 	handler := event.Handle[*TestEvent](func(_ context.Context, _ *TestEvent) error {
 		return nil
 	})
 
-	err := handler.Handle(context.Background(), event.NewEncoded("", []byte(`{"`)))
+	err := handler.Handle(context.Background(), event.NewJSON("", []byte(`{"`)))
 	assert.Error(t, err)
 }
 
